@@ -9,7 +9,7 @@
         <div id="navigation" class="w3-container w3-bar">
             <img class=" w3-bar-item w3-display-right" src="/img/600x.png"/>
 
-            <div class="w3-container w3-bar-item" style="width: 30%">
+            <div class="w3-container w3-bar-item">
                 <input id="searchField" class="w3-border" type="text"
                        style="width: 100%" placeholder="Search" onblur="hideList(event)" onkeyup="searchType(event)" />
                 <div id="nameList" class="w3-dropdown-content w3-bar-block w3-border" style="z-index: 100 !important;">
@@ -224,8 +224,11 @@
             function searchType(event) {
                 var text = document.getElementById('searchField').value;
                 var nameList = document.getElementById('nameList');
-                if (text == '')
+                if(text == ''){
+                    $('#nameList').hide();
                     return;
+                }
+
                 $.get('/auth/search/' + text, function(names) {
                     $('#nameList').children().remove();
                     var length = names.length, i;

@@ -2,7 +2,6 @@ package de.hska.controller;
 
 import java.util.ArrayList;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -20,8 +19,6 @@ public class MainController {
 	private MainRepository mainRepo;
 	@Autowired
 	private SimpMessagingTemplate msgtemplate;
-	@Autowired
-	private ObjectMapper mapper;
 	
 	@RequestMapping(value="/auth/timeline", method=RequestMethod.GET) 
 	public String getTimelines(@ModelAttribute("user") String username, @ModelAttribute("from") int from,
@@ -104,12 +101,9 @@ public class MainController {
 	public @ResponseBody Long sizeOfFollowing(@PathVariable("user") String username) {
 		return mainRepo.sizeOfFollowing(username);
 	}
-	// Nicht fertig
+
 	@RequestMapping(value = "/auth/follower/{username}", method = RequestMethod.GET)
 	public @ResponseBody String isFollowerOf(@PathVariable("username") String username) {
-		if (SimpleSecurity.isSignedIn()) {
-			return String.valueOf(mainRepo.isFollowerOf(username)) + ":" + SimpleSecurity.getName();
-		}
-		return "redirect:/login";
+		return String.valueOf(mainRepo.isFollowerOf(username)) + ":" + SimpleSecurity.getName();
 	}
 }
