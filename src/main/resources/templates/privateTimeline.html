@@ -1,0 +1,282 @@
+<!Doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" style="width: 100%; height: 100%; padding: 0; margin: 0; top: 0; right: 0; bottom: 0; left: 0;">
+    <head>
+        <title>Twitter-Klon</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"></link>
+    </head>
+    <body onload="connect()" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
+        <div id="navigation" class="w3-container w3-bar">
+            <img class=" w3-bar-item w3-display-right" src="/img/600x.png"/>
+
+            <div class="w3-container w3-bar-item" style="width: 30%">
+                <input id="searchField" class="w3-border" type="text"
+                       style="width: 100%" placeholder="Search" onblur="hideList(event)" onkeyup="searchType(event)" />
+                <div id="nameList" class="w3-dropdown-content w3-bar-block w3-border" style="z-index: 100 !important;">
+				
+                </div>
+            </div>
+			<a th:href="@{/auth/timeline(user=${username},from=0,to=20)}" class="w3-button w3-display-topmiddle w3-bar-item">Globale Timeline</a>
+            <label class="w3-bar-item w3-display-topmiddle"> </label>
+            <!--leer-->
+            <a href="/logout" class="w3-button w3-display-topright w3-bar-item">Logout</a>
+        </div>
+
+        <div id="content" class="w3-container w3-row w3-grey" style="width: 100%; height: 91.7%; overflow: scroll; overflow-x: hidden;">
+            <div class="w3-col l12 w3-display-container" style="height: 100%;">
+                <div class="w3-display-container">
+                    <div class="w3-left">
+                        <h2>follower</h2>
+                        <span id="followerBadge" class="w3-badge w3-green">0</span>
+                    </div>
+                    <div class="w3-right w3-display-container">
+                        <h2>following</h2>
+                        <span id="followingBadge" class="w3-badge w3-red w3-right">0</span>
+                    </div>
+                </div>
+                <div class="w3-container w3-center">
+                     <h1 th:text="|${user}'s Timeline|">Arminxx's Timeline</h1>
+                     <button id="followButton" class="w3-button w3-pink w3-hover-teal w3-middle w3-round-large"
+                             onclick="followOrUnfollow(event)"></button>
+                </div>
+
+                <div th:each="post : ${posts}" class="w3-container w3-margin">
+                    <div class="w3-card-4" style="width: 100%;">
+                        <header class="w3-container" style="background-color: #9766b3">
+                            <h1 th:text="${post.username}"></h1>
+                        </header>
+
+                        <div class="w3-container w3-white" th:text="${post.postText}"></div>
+
+                        <footer class="w3-container" style="background-color: #9766b3">
+                            <h5 th:text="${post.dateText}"></h5>
+                        </footer>
+                    </div>
+                </div>
+
+                <div th:if="${postsListSize > 20}" class="w3-center" th:with="paginationCount=${postsListSize/20}">
+                    <div class="w3-bar w3-border w3-round w3-teal">
+                        <a th:if="${from > 0}" th:href="@{/auth/timeline(user=${username},from=${from-20},to=${from})}" class="w3-bar-item w3-button">&laquo;</a>
+                        <div class="w3-left" th:each="i,iterStat : ${#numbers.sequence(0, {paginationCount} )}">
+                            <a th:href="@{/auth/timeline(user=${username},from=${iterStat.index}*20,to=${iterStat.count}*20)}" th:class="'w3-bar-item w3-button ' + ${iterStat.index * 20 == from ? 'w3-cyan' : 'w3-green'}" th:text="${iterStat.count}"></a>
+                        </div>
+                        <a th:if="${postsListSize > to}" th:href="@{/auth/timeline(user=${username},from=${to},to=${to+20})}" class="w3-bar-item w3-button">&raquo;</a>
+                    </div>
+                </div>
+            </div>
+            <div style="width: 300px;" class="w3-container w3-display-right">
+            </div>
+        </div>
+
+        <footer>
+            <input name="post" style="width: 85%; height: 2%;" type="text" maxlength="140" placeholder="Type to make a post..." />
+            <input type="button" class="w3-button" onclick="addPost(event)" value="Senden"/>
+        </footer>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <script th:inline="javascript">
+            $(function () {
+               initializeFollowButton();
+               initializeFollowerAndFollowing();
+            });
+
+            function initializeFollowerAndFollowing() {
+                $.get("/auth/user/follower/size/" + getUrlVar('user'), function (response) {
+                    $('#followerBadge').text(response);
+                });
+
+                $.get("/auth/user/following/size/" + getUrlVar('user'), function (response) {
+                    $('#followingBadge').text(response);
+                });
+            }
+
+            function initializeFollowButton() {
+                $.get("/auth/follower/" + getUrlVar('user'), function (response) {
+                    var splitted = response.split(':');
+
+                    if(splitted[1] != getUrlVar('user')) {
+                        if (splitted[0] == 'true') {
+                            $('#followButton').text('Unfollow :(');
+                        } else {
+                            $('#followButton').text('Follow :)');
+                        }
+                    } else {
+                        $('#followButton').hide();
+                    }
+                    document.following = splitted[0];
+                });
+            }
+
+            function followOrUnfollow(event) {
+                if(document.following == 'true') {
+                    $.ajax({
+                        url : '/auth/user/follow/' + getUrlVar('user'),
+                        type : 'DELETE',
+                        success : function (response) {
+
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url : '/auth/user/follow/' + getUrlVar('user'),
+                        type : 'PUT',
+                        success : function (response) {
+
+                        }
+                    });
+                }
+                initializeFollowerAndFollowing();
+                initializeFollowButton();
+            }
+            function showInfo(message) {
+                var p = document.createElement('p');
+                var infoDiv = document.createElement('div');
+                var contentDiv = document.getElementById('content');
+
+                p.textContent = message;
+
+                infoDiv.style.height = '100px';
+                infoDiv.classList.add('w3-panel', 'w3-card', 'w3-animate-right', 'w3-white');
+                infoDiv.appendChild(p);
+
+                contentDiv.children[1].appendChild(infoDiv);
+
+                setTimeout(function(){
+                    var currentChild;
+                    //<![CDATA[
+                    for(var i=0; i<contentDiv.children[1].children.length; i++) {
+                        if(contentDiv.children[1].children[i].hasAttribute('fading')){
+                            continue;
+                        }
+                        contentDiv.children[1].children[i].setAttribute('fading','');
+                        currentChild = contentDiv.children[1].children[i];
+                        break;
+                    }
+                    //]]>
+                    $(currentChild).fadeOut(1500, function(){
+                        $(this).remove();
+                    });
+                },5000);
+            }
+            function addPost(event) {
+                var currentTarget = event.currentTarget;
+                var postText = currentTarget.previousElementSibling.value;
+                $.ajax({
+                    url : '/auth/post',
+                    type : 'post',
+                    data : {
+                        postText : postText
+                    },
+                    success : function (response) {
+                        //<![CDATA[
+                        if (getUrlVar('from') == 0 && false) {
+                        //]]>
+                            var outerDiv = document.createElement('div');
+                            var innerDiv = document.createElement('div');
+                            var innerestDiv = document.createElement('div');
+                            var header = document.createElement('header');
+                            var footer = document.createElement('footer');
+                            var h1 = document.createElement('h1');
+                            var h5 = document.createElement('h5');
+                            var contentDiv = document.getElementById('content');
+
+                            outerDiv.classList.add('w3-container', 'w3-margin');
+
+                            innerDiv.classList.add('w3-card-4');
+                            innerDiv.style.width = '100%';
+
+                            innerestDiv.classList.add('w3-container', 'w3-white');
+                            innerestDiv.textContent = response.postText;
+
+                            header.classList.add('w3-container');
+                            header.style.backgroundColor = '#9766b3';
+
+                            footer.classList.add('w3-container');
+                            footer.style.backgroundColor = '#9766b3';
+
+                            h1.textContent = response.username;
+                            h5.textContent = response.dateText;
+
+                            header.appendChild(h1);
+                            footer.appendChild(h5);
+
+                            innerDiv.appendChild(header);
+                            innerDiv.appendChild(innerestDiv);
+                            innerDiv.appendChild(footer);
+
+                            outerDiv.appendChild(innerDiv);
+
+                            contentDiv.children[0].insertBefore(outerDiv, contentDiv.children[0].children[1]);
+
+                            if (contentDiv.children[0].childElementCount >= 22) {
+                                contentDiv.children[0].lastElementChild.previousElementSibling.remove();
+                            }
+                        }
+                    }
+                });
+            }
+
+            function hideList(event) {
+                if(!document.getElementById('nameList').contains(event.relatedTarget))
+                    $('#nameList').hide();
+            }
+
+            function searchType(event) {
+                var text = document.getElementById('searchField').value;
+                var nameList = document.getElementById('nameList');
+                if (text == '')
+                    return;
+                $.get('/auth/search/' + text, function(names) {
+                    $('#nameList').children().remove();
+                    var length = names.length, i;
+
+                    for(i=0; length > i; i++) {
+                        // Liste befüllen
+                        var a = document.createElement('a');
+                        //<![CDATA[
+                        a.href = 'privateTimeline?user=' + names[i] + '&from=0&to=20';
+                        //]]>
+                        a.classList.add('w3-bar-item','w3-button');
+                        a.text = names[i];
+                        $('#nameList').append(a);
+                    }
+                    if (length > 0)
+                        $('#nameList').show();
+                });
+            }
+            function getUrlVar(key) {
+            	var vars = {};
+            	//<![CDATA[
+            	var parts = location.search == "" ? [] : location.search.substr(1).split('&');
+            	
+            	for(var i=0; i< parts.length; i++) {
+            		vars[parts[i].split('=')[0]] = parts[i].split('=')[1];
+            	}
+            	//]]>
+            	return vars[key];
+            }
+        </script>
+        <script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+        <script>
+            var	stompClient	= null;
+            function connect() {
+                var socket = new SockJS('/msgsocket');
+                stompClient = Stomp.over(socket);
+                stompClient.connect({}, function(frame) {
+                    console.log('Connected: ' + frame);
+
+                    stompClient.subscribe('/user/' + localStorage.getItem('loggedInUser') + '/message', function(message) {
+                        showInfo(message.body);
+                    });
+                });
+            }
+            function disconnect() {
+                if	(stompClient !=	null){
+                    stompClient.disconnect();
+                }
+            }
+        </script>
+    </body>
+</html>
+

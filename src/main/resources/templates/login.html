@@ -1,0 +1,85 @@
+<!Doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org" style="width: 100%; height: 100%">
+	<head>
+		<title>Pieper</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"></link>
+	</head>
+	<body>
+		<div class="w3-container w3-row w3-show" style="margin-left: auto; margin-right: auto; width: 50%; margin-top: 10%;">
+			<h1 class="w3-text-teal w3-mobile">Pieper login</h1>
+			<form class="w3-container w3-col l12" action="/login" method="post" name="user">
+				<label>Username</label>
+				<input class="w3-input w3-mobile" type="text" name="username" style="width: 95%;"/>
+                
+                <br/>
+                
+				<label>Password</label>
+				<input class="w3-input w3-mobile" type="password" name="password" style="width: 95%;"/>
+				
+                <br/>
+                
+				<input class="w3-button w3-cyan w3-hover-teal w3-round-large" type="submit" value="Login"/>
+                <button class="w3-button w3-red w3-hover-teal w3-right w3-round-large" onclick="switchRegister(event)">Register </button>
+			</form>
+		</div>
+        
+        <div class="w3-container w3-row w3-hide" style="margin-left: auto; margin-right: auto; width: 50%; margin-top: 10%;">
+			<h1 class="w3-text-teal w3-mobile">Pieper register</h1>
+			<form class="w3-container w3-col l12" action="/register" method="post" name="user">
+				<label>Username</label>
+				<input class="w3-input w3-mobile" type="text" name="username" style="width: 95%;"/>
+                
+                <br/>
+                
+				<label>Password</label>
+				<input class="w3-input w3-mobile" type="password" name="password" style="width: 95%;"/>
+                
+                <br/>
+                
+				<label>Email</label>
+				<input class="w3-input w3-mobile" type="email" name="email" style="width: 95%;"/>
+				
+                <br/>
+                
+				<input class="w3-button w3-cyan w3-hover-teal w3-round-large" type="submit" value="Register"/>
+                
+                <button class="w3-button w3-red w3-hover-teal w3-right w3-round-large" onclick="switchLogin(event)">Login </button>
+			</form>
+		</div>
+		
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <script>
+        	function switchRegister(event){
+        		event.preventDefault();
+        		       		
+            	var body = document.body;
+                var divs = body.children;
+                var login = divs[0];
+                var register = divs[1];
+
+                login.classList.remove('w3-show');
+                login.classList.add('w3-hide');
+                
+                register.classList.remove('w3-hide');
+                register.classList.add('w3-show');
+            }
+            
+            function switchLogin(event){
+            	event.preventDefault();
+            	var body = document.body;
+                var divs = body.children;
+                var login = divs[0];
+                var register = divs[1];
+                
+                login.classList.remove('w3-hide');
+                login.classList.add('w3-show');
+                
+                register.classList.remove('w3-show');
+                register.classList.add('w3-hide');
+                
+            }
+        </script>
+	</body>
+</html>
