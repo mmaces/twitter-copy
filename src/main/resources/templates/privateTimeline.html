@@ -113,7 +113,8 @@
                         url : '/auth/user/follow/' + getUrlVar('user'),
                         type : 'DELETE',
                         success : function (response) {
-
+                            initializeFollowerAndFollowing();
+                            initializeFollowButton();
                         }
                     });
                 } else {
@@ -121,12 +122,11 @@
                         url : '/auth/user/follow/' + getUrlVar('user'),
                         type : 'PUT',
                         success : function (response) {
-
+                            initializeFollowerAndFollowing();
+                            initializeFollowButton();
                         }
                     });
                 }
-                initializeFollowerAndFollowing();
-                initializeFollowButton();
             }
             function showInfo(message) {
                 var p = document.createElement('p');
