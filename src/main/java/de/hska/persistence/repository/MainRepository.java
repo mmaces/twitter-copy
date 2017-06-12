@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.hska.core.security.SimpleSecurity;
 import de.hska.persistence.domain.Post;
 import de.hska.persistence.domain.User;
+import de.hska.pubsub.Application;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -42,7 +44,9 @@ public class MainRepository {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
-
+		
+		Application appli = new Application();
+		
 		return true;
 	}
 
@@ -100,6 +104,8 @@ public class MainRepository {
 		} catch (JsonProcessingException e) {
 			e.printStackTrace();
 		}
+		
+		Application appli = new Application();
 
 		return post;
 	}
@@ -172,6 +178,8 @@ public class MainRepository {
 	public boolean follow(String uname) {
 		template.opsForList().leftPush("follower:" + uname, SimpleSecurity.getName());
 		template.opsForList().leftPush("following:" + SimpleSecurity.getName(), uname);
+		
+		Application appli = new Application();
 
 		return true;
 	}
@@ -179,6 +187,8 @@ public class MainRepository {
 	public boolean unfollow(String uname) {
 		template.opsForList().remove("follower:" + uname, 0, SimpleSecurity.getName());
 		template.opsForList().remove("following:" + SimpleSecurity.getName(), 0, uname);
+		
+		Application appli = new Application();
 
 		return true;
 	}

@@ -25,20 +25,13 @@
         <div id="content" class="w3-container w3-row w3-grey" style="width: 100%; height: 91.7%; overflow: scroll; overflow-x: hidden;">
             <div class="w3-col l12 w3-display-container" style="height: 100%;">
                 <div class="w3-display-container">
-                    <div class="w3-left" onmouseover="followerList(event)" onmouseleave="followerListHide(event)">
+                    <div class="w3-left">
                         <h2>follower</h2>
-                        <span id="followerBadge" class="w3-badge w3-green" >0</span>
-                        
-                        <div id="followerList" class="w3-dropdown-content w3-bar-block w3-border" style="z-index: 100 !important;">
-				
-                		</div>
+                        <span id="followerBadge" class="w3-badge w3-green">0</span>
                     </div>
-                    <div class="w3-right w3-display-container" onmouseover="followingList(event)" onmouseleave="followingListHide(event)">
+                    <div class="w3-right w3-display-container">
                         <h2>following</h2>
                         <span id="followingBadge" class="w3-badge w3-red w3-right">0</span>
-                        <div id="followingList" class="w3-dropdown-content w3-bar-block w3-border" style="z-index: 100 !important;">
-				
-                		</div>
                     </div>
                 </div>
                 <div class="w3-container w3-center">
@@ -95,8 +88,6 @@
                 $.get("/auth/user/following/size/" + getUrlVar('user'), function (response) {
                     $('#followingBadge').text(response);
                 });
-                
-                
             }
 
             function initializeFollowButton() {
@@ -267,69 +258,6 @@
             	//]]>
             	return vars[key];
             }
-            
-            
-            
-            
-            function followerList(event) {
-            	
-                var followerList = document.getElementById('followerList');
-
-                $.get('/auth/user/follower/' + getUrlVar('user'), function(follower) {
-                    $('#followerList').children().remove();
-                    var length = follower.length, i;
-
-                    for(i=0; length > i; i++) {
-                        // Liste befüllen
-                        var a = document.createElement('a');
-                        //<![CDATA[
-                        a.href = 'privateTimeline?user=' + follower[i] + '&from=0&to=20';
-                        //]]>
-                        a.classList.add('w3-bar-item','w3-button');
-                        a.text = follower[i];
-                        $('#followerList').append(a);
-                    }
-                    if (length > 0)
-                        $('#followerList').show();
-                });
-            }
-            
-			function followingList(event) {
-            	
-                var followingList = document.getElementById('followingList');
-
-                $.get('/auth/user/following/' + getUrlVar('user'), function(following) {
-                    $('#followingList').children().remove();
-                    var length = following.length, i;
-
-                    for(i=0; length > i; i++) {
-                        // Liste befüllen
-                        var a = document.createElement('a');
-                        //<![CDATA[
-                        a.href = 'privateTimeline?user=' + following[i] + '&from=0&to=20';
-                        //]]>
-                        a.classList.add('w3-bar-item','w3-button');
-                        a.text = following[i];
-                        $('#followingList').append(a);
-                    }
-                    if (length > 0)
-                        $('#followingList').show();
-                });
-            }
-            
-            
-			function followingListHide(event){
-				var followingList = document.getElementById('followingList');
-				$('#followingList').hide();
-			}
-            
-			function followerListHide(event){
-				var followerList = document.getElementById('followerList');
-				$('#followerList').hide();
-			}
-            
-            
-            
         </script>
         <script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>

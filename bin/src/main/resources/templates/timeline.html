@@ -1,0 +1,317 @@
+<!Doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org" style="width: 100%; height: 100%; padding: 0; margin: 0; top: 0; right: 0; bottom: 0; left: 0;">
+	<head>
+		<title>Twitter-Klon</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+	</head>
+	<body onload="connect(); init()" onunload="disconnect()" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
+		<div id="navigation" class="w3-container w3-bar">
+			<div class="w3-container w3-bar-item">
+				<input id="searchField" class="w3-border" type="text"
+					   style="width: 100%" placeholder="Search" onblur="hideList(event)" onkeyup="searchType(event)" />
+				<div id="nameList" class="w3-dropdown-content w3-bar-block w3-border" style="z-index: 100 !important;">
+
+				</div>
+			</div>
+
+			<label class="w3-bar-item w3-display-topmiddle"> </label>
+			<!--leer-->
+			<a href="/logout" class="w3-button w3-display-topright w3-bar-item">Logout</a>
+		</div>
+
+		<div id="content" class="w3-container w3-row w3-grey" style="width: 100%; height: 91.7%; overflow-x: hidden;">
+			<div class="w3-col l12 w3-display-container" style="height: 100%;">
+				<div class="w3-container w3-center">
+					<h1>Globale Timeline</h1>
+				</div>
+
+				<div th:each="post : ${posts}" class="w3-container w3-margin">
+					<div class="w3-card-4" style="width: 100%;">
+						<header class="w3-container" style="background-color: #9766b3">
+							<h1 th:text="${post.username}"></h1>
+						</header>
+
+						<div class="w3-container w3-white" th:text="${post.postText}"></div>
+
+						<footer class="w3-container" style="background-color: #9766b3">
+							<h5 th:text="${post.dateText}"></h5>
+						</footer>
+					</div>
+				</div>
+				<div th:if="${postsListSize > 20}" class="w3-center" th:with="paginationCount=${postsListSize/20}">
+					<div class="w3-bar w3-border w3-round w3-teal">
+						<a th:if="${from > 0}" th:href="@{/auth/timeline(user=${username},from=${from-20},to=${from})}" class="w3-bar-item w3-button">&laquo;</a>
+						<div class="w3-left" th:each="i,iterStat : ${#numbers.sequence(0, {paginationCount} )}">
+							<a th:href="@{/auth/timeline(user=${username},from=${iterStat.index}*20,to=${iterStat.count}*20)}" th:class="'w3-bar-item w3-button ' + ${iterStat.index * 20 == from ? 'w3-cyan' : 'w3-green'}" th:text="${iterStat.count}"></a>
+						</div>
+						<a th:if="${postsListSize > to}" th:href="@{/auth/timeline(user=${username},from=${to},to=${to+20})}" class="w3-bar-item w3-button">&raquo;</a>
+					</div>
+				</div>
+			</div>
+			<div style="width: 300px;" class="w3-container w3-display-right">
+			</div>
+		</div>
+		
+		<footer>
+			<input name="post" style="width: 85%; height: 2%;" type="text" maxlength="140" placeholder="Type to make a post..." />
+			<input type="button" class="w3-button" onclick="addPost(event)" value="Senden"/>
+		</footer>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+		<script>
+            //<![CDATA[
+			function init() {
+			    localStorage.setItem('loggedInUser', getUrlVar('user'));
+			}
+			function showInfo(message) {
+				 var p = document.createElement('p');	
+				 var infoDiv = document.createElement('div');
+				 var contentDiv = document.getElementById('content');
+
+				 p.textContent = message;
+				 
+				 infoDiv.style.height = '100px';
+				 infoDiv.classList.add('w3-panel', 'w3-card', 'w3-animate-right', 'w3-white');
+				 infoDiv.appendChild(p);
+				 
+				 contentDiv.children[1].appendChild(infoDiv);
+
+				 setTimeout(function(){
+					 var currentChild;
+
+					 for(var i=0; i<contentDiv.children[1].children.length; i++) {
+					     if(contentDiv.children[1].children[i].hasAttribute('fading')){
+					         continue;
+						 }
+                         contentDiv.children[1].children[i].setAttribute('fading','');
+					     currentChild = contentDiv.children[1].children[i];
+					     break;
+					 }
+
+					 $(currentChild).fadeOut(1500, function(){
+					 	$(this).remove();
+					 });
+				 },5000);
+			}
+			function addPost(event) {
+				var currentTarget = event.currentTarget;
+				var postText = currentTarget.previousElementSibling.value;
+				$.ajax({
+					url : '/auth/post',
+					type : 'POST',
+					data : {
+						postText : postText
+					},
+					success : function (response) {
+					    if (getUrlVar('from') == 0 && false) {
+
+                            var outerDiv = document.createElement('div');
+                            var innerDiv = document.createElement('div');
+                            var innerestDiv = document.createElement('div');
+                            var header = document.createElement('header');
+                            var footer = document.createElement('footer');
+                            var h1 = document.createElement('h1');
+                            var h5 = document.createElement('h5');
+                            var contentDiv = document.getElementById('content');
+
+                            outerDiv.classList.add('w3-container', 'w3-margin');
+
+                            innerDiv.classList.add('w3-card-4');
+                            innerDiv.style.width = '100%';
+
+                            innerestDiv.classList.add('w3-container', 'w3-white');
+                            innerestDiv.textContent = response.postText;
+
+                            header.classList.add('w3-container');
+                            header.style.backgroundColor = '#9766b3';
+
+                            footer.classList.add('w3-container');
+                            footer.style.backgroundColor = '#9766b3';
+
+                            h1.textContent = response.username;
+                            h5.textContent = response.dateText;
+
+                            header.appendChild(h1);
+                            footer.appendChild(h5);
+
+                            innerDiv.appendChild(header);
+                            innerDiv.appendChild(innerestDiv);
+                            innerDiv.appendChild(footer);
+
+                            outerDiv.appendChild(innerDiv);
+
+                            contentDiv.children[0].insertBefore(outerDiv, contentDiv.children[0].children[1]);
+
+                            if (contentDiv.children[0].childElementCount >= 22) {
+                                contentDiv.children[0].lastElementChild.previousElementSibling.remove();
+                            }
+                        }
+					}
+				});
+			}
+
+            function hideList(event) {
+                if(!document.getElementById('nameList').contains(event.relatedTarget))
+                    $('#nameList').hide();
+            }
+
+			function searchType(event) {
+				var text = document.getElementById('searchField').value;
+				if(text == '') {
+                    $('#nameList').hide();
+                    return;
+                }
+				$.get('/auth/search/' + text, function(names){
+                    $('#nameList').children().remove();
+                    var length = names.length, i, greater = false;
+                    var tmpLength = length;
+
+					if(length > 20){
+                        tmpLength = 20;
+                        greater = true;
+                    }
+
+                    for(i=0; i < tmpLength; i++) {
+                        // Liste befüllen
+                        var a = document.createElement('a');
+                        a.classList.add('w3-bar-item','w3-button','listItem');
+                        a.href = 'privateTimeline?user=' + names[i] + '&from=0&to=20';
+                        a.text = names[i];
+                        $('#nameList').append(a);
+                    }
+
+                    var searchObj = {};
+                    searchObj.namesParts = [];
+                    searchObj.currentIndex = 0;
+                    var partsCount = Math.ceil(length / 20);
+                    if(greater) {
+                        // Liste aufteilen
+                        for(var i = 0; i < partsCount; i++){
+                            searchObj.namesParts[i] = names.slice(i * 20, (i + 1) * 20);
+                        }
+                        // Pagination erstellen und anzeigen
+						var leftNav = document.createElement('div');
+                        var rightNav = document.createElement('div');
+                        // Pfeil Links
+                        leftNav.classList.add('w3-button', 'w3-bar-item', 'w3-green');
+                        leftNav.innerHTML = '&laquo;';
+                        leftNav.setAttribute('tabindex', 0);
+                        leftNav.addEventListener('click', function (event) {
+							showPart(event);
+                        }, false);
+                        $('#nameList').append(leftNav);
+                        // Pfeil Rechts
+                        rightNav.classList.add('w3-button', 'w3-bar-item', 'w3-green');
+                        rightNav.innerHTML = '&raquo;';
+                        rightNav.setAttribute('tabindex', 0);
+                        rightNav.addEventListener('click', function (event) {
+                            showPart(event);
+                        }, false);
+						// Erstes Item
+                        var firstNavItem = document.createElement('div');
+                        firstNavItem.classList.add('w3-button', 'w3-left', 'w3-cyan', 'navItem');
+                        firstNavItem.textContent = 1;
+                        firstNavItem.setAttribute('tabindex', 0);
+                        firstNavItem.addEventListener('click', function (event) {
+                            showPart(event);
+                        }, false);
+                        $('#nameList').append(firstNavItem);
+
+                        // Andere Items
+                        for(var i=1; i < partsCount; i++){
+                            var navItem = document.createElement('div');
+                            navItem.classList.add('w3-button', 'navItem');
+                            navItem.setAttribute('tabindex', 0);
+							navItem.textContent = i+1;
+							navItem.addEventListener('click', function (event) {
+                                showPart(event);
+                            }, false);
+                            $('#nameList').append(navItem);
+						}
+
+                        $('#nameList').append(rightNav);
+                    }
+
+                    localStorage.setItem('searchResult', JSON.stringify(searchObj));
+
+					if(0 < length)
+                    	$('#nameList').show();
+                });
+			}
+			function showPart(event) {
+                var searchObj = JSON.parse(localStorage.getItem('searchResult'));
+                var currentIndex = searchObj.currentIndex;
+                var namesParts = searchObj.namesParts;
+                var index = 0;
+			    // Index herrausfinden
+				if(event.target.textContent == '«'){
+					index = (currentIndex == 0 ? 0 : currentIndex - 1);
+					if(currentIndex > 0)
+					    searchObj.currentIndex = index;
+				}else if(event.target.textContent == '»'){
+                    index = (currentIndex == namesParts.length - 1 ? currentIndex : currentIndex + 1);
+                    if(currentIndex < namesParts.length)
+                        searchObj.currentIndex = index;
+				}else{
+                    searchObj.currentIndex = index = parseInt(event.target.textContent) - 1;
+				}
+
+				// Die bisherige Liste löschen, ohne die Pagination Navigation zu löschen
+                $('.listItem').remove();
+				// Teil an Stelle index anzeigen
+				var namesPart = namesParts[index];
+				namesPart.reverse();
+
+				for(var i=0; i < namesPart.length; i++) {
+                    var a = document.createElement('a');
+                    a.classList.add('w3-bar-item','w3-button','listItem');
+                    a.href = 'privateTimeline?user=' + namesPart[i] + '&from=0&to=20';
+                    a.text = namesPart[i];
+                    $('#nameList').prepend(a);
+                }
+
+                var navItems = document.querySelectorAll('.navItem');
+				navItems.forEach(function (navItem) {
+					navItem.classList.remove('w3-cyan');
+                });
+
+				navItems[index].classList.add('w3-cyan');
+            }
+            function getUrlVar(key) {
+                var vars = {};
+
+                var parts = location.search == "" ? [] : location.search.substr(1).split('&');
+
+                for(var i=0; i< parts.length; i++) {
+                    vars[parts[i].split('=')[0]] = parts[i].split('=')[1];
+                }
+
+                return vars[key];
+            }
+            //]]>
+		</script>
+		<script src="http://cdn.sockjs.org/sockjs-0.3.4.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.js"></script>
+		<script>
+			var	stompClient	= null;
+			function connect() {
+				 var socket = new SockJS('/msgsocket');
+				 stompClient = Stomp.over(socket);
+				 stompClient.connect({}, function(frame) {
+					 console.log('Connected: ' + frame);
+
+					 stompClient.subscribe('/user/' + getUrlVar('user') + '/message', function(message) {
+						showInfo(message.body);
+					 });
+				});
+			}
+			function disconnect() {
+				 if	(stompClient !=	null){
+					stompClient.disconnect();
+				 }
+			}
+		</script>
+	</body>
+</html>
