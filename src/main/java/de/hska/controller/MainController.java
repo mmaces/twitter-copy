@@ -60,15 +60,15 @@ public class MainController {
 	
 	@RequestMapping(value="/auth/post", method=RequestMethod.POST)
 	public @ResponseBody Post savePost(@Param("postText") String postText) {
-		sendInfoToFollower();
 		return mainRepo.addPost(postText, SimpleSecurity.getName());
 	}
 	
-	private void sendInfoToFollower() {
-		ArrayList<String> users = mainRepo.getFollower(SimpleSecurity.getName());
+	public void sendInfoToFollower(Post post) {
+		ArrayList<String> users = mainRepo.getFollower(post.getUsername());
 		
 		for(String username : users) {
-			msgtemplate.convertAndSend("/user/" + username + "/message", SimpleSecurity.getName() + " hat etwas gepostet!");
+			msgtemplate.convertAndSend("/user/" + username + "/message", post.getUsername() +
+					" hat etwas gepostet am " + post.getDateText() + "!");
 		}
 	}
 
