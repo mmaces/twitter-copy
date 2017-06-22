@@ -12,22 +12,16 @@ import de.hska.pubsub.Receiver;
 @Configuration
 public class PublishSubscribeConfig {
 	@Bean
-	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory,
-
-			MessageListenerAdapter listenerAdapter) {
-
+	RedisMessageListenerContainer container(RedisConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
 		RedisMessageListenerContainer container = new RedisMessageListenerContainer();
-
 		container.setConnectionFactory(connectionFactory);
-
-		container.addMessageListener(listenerAdapter, new PatternTopic("newPostQueue"));
+		container.addMessageListener(listenerAdapter, new PatternTopic("newPostsQueue"));
 
 		return container;
 	}
 
 	@Bean
 	MessageListenerAdapter listenerAdapter(Receiver receiver) {
-
 		return new MessageListenerAdapter(receiver, "receiveMessage");
 	}
 
@@ -35,5 +29,4 @@ public class PublishSubscribeConfig {
 	Receiver receiver() {
 		return new Receiver();
 	}
-
 }

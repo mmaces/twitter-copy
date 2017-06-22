@@ -17,18 +17,16 @@ import de.hska.persistence.repository.MainRepository;
 public class MainController {
 	@Autowired
 	private MainRepository mainRepo;
-	@Autowired
-	private SimpMessagingTemplate msgtemplate;
 	
 	@RequestMapping(value="/auth/timeline", method=RequestMethod.GET) 
-	public String getTimelines(@ModelAttribute("user") String username, @ModelAttribute("from") int from,
+	public String getTimelines(@ModelAttribute("from") int from,
 							   @ModelAttribute("to") int to, Model model) {
-		if(SimpleSecurity.isUserSignedIn(username)) {
+		if(SimpleSecurity.isSignedIn()) {
 			ArrayList<Post> allPosts = mainRepo.getAllPosts();
 			model.addAttribute("posts", mainRepo.getPaginatedPosts(null, from, to));
 
 			model.addAttribute("postsListSize", allPosts.size());
-			model.addAttribute("username", username);
+			model.addAttribute("username", SimpleSecurity.getName());
 			model.addAttribute("from", from);
 			model.addAttribute("to", to);
 
@@ -61,15 +59,6 @@ public class MainController {
 	@RequestMapping(value="/auth/post", method=RequestMethod.POST)
 	public @ResponseBody Post savePost(@Param("postText") String postText) {
 		return mainRepo.addPost(postText, SimpleSecurity.getName());
-	}
-	
-	public void sendInfoToFollower(Post post) {
-		ArrayList<String> users = mainRepo.getFollower(post.getUsername());
-		
-		for(String username : users) {
-			msgtemplate.convertAndSend("/user/" + username + "/message", post.getUsername() +
-					" hat etwas gepostet am " + post.getDateText() + "!");
-		}
 	}
 
 	@RequestMapping(value="/auth/user/follower/{user}", method=RequestMethod.GET)

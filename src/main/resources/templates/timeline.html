@@ -6,7 +6,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
 	</head>
-	<body onload="connect(); init()" onunload="disconnect()" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
+	<body onload="connect()" onunload="disconnect()" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
 		<div id="navigation" class="w3-container w3-bar">
 			<div class="w3-container w3-bar-item">
 				<input id="searchField" class="w3-border" type="text"
@@ -16,9 +16,9 @@
 				</div>
 			</div>
 
-			<label class="w3-bar-item w3-display-topmiddle"> </label>
+			<label class="w3-bar-item w3-display-topmiddle" th:text="'Welcome ' + ${username} + '!'"> </label>
 			<!--leer-->
-			<a href="/logout" class="w3-button w3-display-topright w3-bar-item">Logout</a>
+			<a href="/logout" onclick="deleteCookie()" class="w3-button w3-display-topright w3-bar-item">Logout</a>
 		</div>
 
 		<div id="content" class="w3-container w3-row w3-grey" style="width: 100%; height: 91.7%; overflow-x: hidden;">
@@ -62,9 +62,10 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
 		<script>
             //<![CDATA[
-			function init() {
-			    localStorage.setItem('loggedInUser', getUrlVar('user'));
-			}
+			function deleteCookie() {
+                document.cookie = "auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+
 			function showInfo(message) {
 				 var p = document.createElement('p');	
 				 var infoDiv = document.createElement('div');
@@ -95,6 +96,7 @@
 					 });
 				 },5000);
 			}
+
 			function addPost(event) {
 				var currentTarget = event.currentTarget;
 				var postText = currentTarget.previousElementSibling.value;

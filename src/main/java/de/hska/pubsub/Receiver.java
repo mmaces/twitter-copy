@@ -1,23 +1,33 @@
 package de.hska.pubsub;
 
-
-import java.util.concurrent.CountDownLatch;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.hska.persistence.domain.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import de.hska.controller.MainController;
 import de.hska.persistence.repository.MainRepository;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
+import java.util.ArrayList;
 
 public class Receiver {
 	@Autowired 
 	private MainRepository mainRepo;
-	private static final Logger LOGGER = LoggerFactory.getLogger(Receiver.class);
-	
+	@Autowired
+	private SimpMessagingTemplate msgtemplate;
+
+	// Got message from subscribed Channel -> send via redisTemplate
 	public void receiveMessage(String postId) {
-		MainController mainController = new MainController();
-		mainController.sendInfoToFollower(mainRepo.getPost(postId));
+		sendInfoToFollower(mainRepo.getPost(postId.substring(7,postId.length())));
 	}
 
+	public void sendInfoToFollower(Post post) {
+		ArrayList<String> users = mainRepo.getFollower(post.getUsername());
+
+		for(String username : users) {
+			String dateText = post.getDateText();
+			String date = dateText.split(" ")[0];
+			String time = dateText.split(" ")[1];
+			msgtemplate.convertAndSend("/user/" + username + "/message", post.getUsername() +
+					" hat etwas gepostet am " + date + " um " + time);
+		}
+	}
 }

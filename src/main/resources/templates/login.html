@@ -6,12 +6,12 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1"/>
 		<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"></link>
 	</head>
-	<body>
+	<body onload="init()">
 		<div class="w3-container w3-row w3-show" style="margin-left: auto; margin-right: auto; width: 50%; margin-top: 10%;">
 			<h1 class="w3-text-teal w3-mobile">Pieper login</h1>
 			<form class="w3-container w3-col l12" action="/login" method="post" name="user">
 				<label>Username</label>
-				<input class="w3-input w3-mobile" type="text" name="username" style="width: 95%;"/>
+				<input class="w3-input w3-mobile" type="text" name="username" id="username" style="width: 95%;"/>
                 
                 <br/>
                 
@@ -20,7 +20,7 @@
 				
                 <br/>
                 
-				<input class="w3-button w3-cyan w3-hover-teal w3-round-large" type="submit" value="Login"/>
+				<input class="w3-button w3-cyan w3-hover-teal w3-round-large" type="submit" value="Login" onclick="setLoggedInUser()"/>
                 <button class="w3-button w3-red w3-hover-teal w3-right w3-round-large" onclick="switchRegister(event)">Register </button>
 			</form>
 		</div>
@@ -51,6 +51,12 @@
 		
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
         <script>
+			function init() {
+				localStorage.removeItem('loggedInUser');
+            }
+			function setLoggedInUser() {
+				localStorage.setItem('loggedInUser', $('#username')[0].value);
+            }
         	function switchRegister(event){
         		event.preventDefault();
         		       		

@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css"></link>
     </head>
-    <body onload="connect()" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
+    <body onload="connect();" style="width: 100%; height: 100%; padding: inherit; margin: inherit; top: inherit; right: inherit; bottom: inherit; left: inherit; overflow: hidden;">
         <div id="navigation" class="w3-container w3-bar">
             <img class=" w3-bar-item w3-display-right" src="/img/600x.png"/>
 
@@ -19,7 +19,7 @@
 			<a th:href="@{/auth/timeline(user=${username},from=0,to=20)}" class="w3-button w3-display-topmiddle w3-bar-item">Globale Timeline</a>
             <label class="w3-bar-item w3-display-topmiddle"> </label>
             <!--leer-->
-            <a href="/logout" class="w3-button w3-display-topright w3-bar-item">Logout</a>
+            <a href="/logout" onclick="deleteCookie()" class="w3-button w3-display-topright w3-bar-item">Logout</a>
         </div>
 
         <div id="content" class="w3-container w3-row w3-grey" style="width: 100%; height: 91.7%; overflow: scroll; overflow-x: hidden;">
@@ -42,7 +42,7 @@
                     </div>
                 </div>
                 <div class="w3-container w3-center">
-                     <h1 th:text="|${user}'s Timeline|">Arminxx's Timeline</h1>
+                     <h1 th:text="|${user}'s Timeline|"></h1>
                      <button id="followButton" class="w3-button w3-pink w3-hover-teal w3-middle w3-round-large"
                              onclick="followOrUnfollow(event)"></button>
                 </div>
@@ -82,6 +82,10 @@
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
         <script th:inline="javascript">
+            function deleteCookie() {
+                document.cookie = "auth=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            }
+
             $(function () {
                initializeFollowButton();
                initializeFollowerAndFollowing();
@@ -137,6 +141,7 @@
                     });
                 }
             }
+
             function showInfo(message) {
                 var p = document.createElement('p');
                 var infoDiv = document.createElement('div');
@@ -167,6 +172,7 @@
                     });
                 },5000);
             }
+
             function addPost(event) {
                 var currentTarget = event.currentTarget;
                 var postText = currentTarget.previousElementSibling.value;

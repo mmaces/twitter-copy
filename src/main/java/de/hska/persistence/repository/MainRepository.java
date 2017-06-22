@@ -102,7 +102,7 @@ public class MainRepository {
 			e.printStackTrace();
 		}
 		
-		template.convertAndSend("newPostQueue", post.getPostId());
+		template.convertAndSend("newPostsQueue", new String(post.getPostId()));
 
 		return post;
 	}

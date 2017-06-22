@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import de.hska.persistence.repository.RedisRepository;
 public class LoginController {
 	@Autowired 
 	private RedisRepository repository;
-	private static final Duration TIMEOUT = Duration.ofMinutes(15);
+	private final Duration TIMEOUT = Duration.ofMinutes(15);
 	@Autowired
 	private MainRepository mainRepo;
 	
@@ -37,10 +38,12 @@ public class LoginController {
 		if (repository.auth(user.getUsername(), user.getPassword())) {
 			String auth = repository.addAuth(user.getUsername(), TIMEOUT.getSeconds(), TimeUnit.SECONDS);
 			Cookie cookie = new Cookie("auth", auth);
+			cookie.setMaxAge((int) TIMEOUT.getSeconds());
 			response.addCookie(cookie);
-			model.addAttribute("user", user.getUsername());
+
 			model.addAttribute("from", 0);
 			model.addAttribute("to", 20);
+
 			SimpleSecurity.setUser(user.getUsername());
 			return "redirect:/auth/timeline";
 		}
@@ -53,11 +56,13 @@ public class LoginController {
 		mainRepo.addUser(user);
 		String auth = repository.addAuth(user.getUsername(), TIMEOUT.getSeconds(), TimeUnit.SECONDS);
 		Cookie cookie = new Cookie("auth", auth);
+		cookie.setMaxAge((int) TIMEOUT.getSeconds());
 		response.addCookie(cookie);
-		SimpleSecurity.setUser(user.getUsername());
+
 		model.addAttribute("from", 0);
 		model.addAttribute("to", 20);
-		model.addAttribute("user", user.getUsername());
+
+		SimpleSecurity.setUser(user.getUsername());
 		return "redirect:/auth/timeline";
 	}
 	
